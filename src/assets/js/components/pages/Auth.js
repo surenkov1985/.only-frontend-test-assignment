@@ -1,6 +1,8 @@
 import React, {useState, useEffect} from "react";
 import { useForm } from "react-hook-form";
 import styled from "styled-components";
+import { useSelector, useDispatch } from "react-redux"
+import { setChecked, setName } from "../../stores/actions"
 
 import {Label, LabelText, InputError, InputEl, CheckLabel, CheckInput, Submit, FalseCheck, FalseCheckBack} from "../StyledComponents";
 import FormError from "../FormError"
@@ -17,33 +19,16 @@ export default function Auth({className}) {
 		mode: "onBlur"
 	});
 
-	const [formData, setFormData] = useState({});
-	const [status, setStatus] = useState(null);
-
-	useEffect(() => {
-		console.log(formData)
-
-		fetch("users.json")
-			.then(res => res.json())
-			.then(json => {
-				console.log(json);
-				const user = json.find(res => res.login === formData.login);
-
-				console.log(user)
-				if (user.login === formData.login) {
-					setStatus(true)
-				} else {
-					setStatus(false)
-				}
-
-				console.log(status)
-			})
-		.catch(err => console.log(err))
-	}, [formData]);
-
-	// Пользователя test.user@example.com не существует
 	const [error, setError] = useState("");
 
+	let auth =useSelector((state) => {
+
+		const {checkReducer} = state;
+		return checkReducer.checked
+	});
+	const dispatch = useDispatch();
+
+	// Пользователя test.user@example.com не существует
 	const loginInput = {
 		text: "Логин",
 		type: "text",
@@ -59,14 +44,34 @@ export default function Auth({className}) {
 		type: "password",
 		name: "password",
 		required: "Обязательное поле",
-		message: "Пароль дожен содержать минимум 1 символ, 1 число, 1 строчню букву, 1 прописную букву",
+		message: "Пароль дожен содержать минимум 5 символов",
 		placeholder: "Введите пароль",
-		pattern: /(?=^.{5,}$)(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z])(?=.*[^A-Za-z0-9]).*/
+		pattern: /\w{5,}/
 	};
 
 	function onSubmit(data) {
 
-		setFormData({...data});
+		fetch("users.json")
+			.then(res => res.json())
+			.then(json => {
+				console.log(json);
+				const user = json.find(res => res.login === data.login);
+
+				console.log(user)
+				if (user.login === data.login && user.password === data.password ) {
+
+					dispatch(setName(data.login));
+					dispatch(setChecked(true));
+					setError("")
+				} else if (!user || user.password !== data.password){
+
+					setError(`Неверный логин или пароль`)
+				}else if (!user){
+
+					setError(`Пользователя ${data.login} не существует`)
+				}
+			})
+			.catch(err => console.log(err))
 		reset()
 	}
 

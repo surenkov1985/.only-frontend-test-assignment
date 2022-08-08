@@ -1,7 +1,8 @@
-import { SET_CHECKED } from "./types"
+import { SET_CHECKED, SET_NAME } from "./types"
 
 const initialState = {
-	checked: false
+	checked: false,
+	userName: ""
 };
 
 export const checkReducer = (state = initialState, action) => {
@@ -10,8 +11,13 @@ export const checkReducer = (state = initialState, action) => {
 		case SET_CHECKED:
 			return {
 				...state,
-				checked: !state.checked
-			}
+				checked: action.auth
+			};
+		case SET_NAME:
+			return {
+				...state,
+				userName: action.name
+			};
 		default: return state
 	}
 }
