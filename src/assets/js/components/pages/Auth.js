@@ -19,6 +19,7 @@ export default function Auth({className}) {
 		mode: "onBlur"
 	});
 
+
 	const [error, setError] = useState("");
 
 	let auth =useSelector((state) => {
@@ -66,7 +67,7 @@ export default function Auth({className}) {
 				} else if (!user || user.password !== data.password){
 
 					setError(`Неверный логин или пароль`)
-				}else if (!user){
+				}else if (!user.login){
 
 					setError(`Пользователя ${data.login} не существует`)
 				}
@@ -80,7 +81,11 @@ export default function Auth({className}) {
 			{error && <FormError error={error}/>}
 			<Label>
 				<LabelText>{loginInput.text}</LabelText>
-				<InputEl type={loginInput.type} placeholder={loginInput.placeholder} {...register(loginInput.name, {required: loginInput.required, pattern: {value: loginInput.pattern, message: loginInput.message}})}/>
+				<InputEl
+					type={loginInput.type}
+					placeholder={loginInput.placeholder}
+					{...register(loginInput.name, {required: loginInput.required, pattern: {value: loginInput.pattern, message: loginInput.message}})}
+				/>
 				<InputError>
 					{errors?.login && <span>{errors?.login?.message || "Error!"}</span>}
 				</InputError>
